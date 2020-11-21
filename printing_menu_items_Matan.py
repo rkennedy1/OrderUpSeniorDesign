@@ -30,12 +30,9 @@ r = requests.post(
 response_json = r.json()
 response_json = response_json['object']['response']['response_json']
 
-
-with open('output1.txt', 'w') as outfile:
-    json.dump(response_json, outfile)
-
    
 print('\n\nmenu_category_list')
+
 # parallel lists
 list_of_json = []
 merchantId_list = [] 
@@ -65,7 +62,7 @@ for r in response_json['restaurant']['menu_category_list']:
     
                 "name": k['name'],
                 "price": k['price']['amount'],
-                "description": ""
+                "description": k['description']
                 }
         list_of_json.append(cur)
         merchantId_list.append(k['restaurant_id'])
