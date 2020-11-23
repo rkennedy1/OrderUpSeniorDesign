@@ -29,42 +29,54 @@ r = requests.post(
 
 response_json = r.json()
 response_json = response_json['object']['response']['response_json']
-#print("Restau'rant:\n",respon'se_json,'\n')
 
-with open('output1.txt', 'w') as outfile:
-    json.dump(response_json, outfile)
-
-'''for r in response_json:
-    print('\n\n',r)
-    for r2 in response_json[r]:
-        print('   ',r2)'''
    
 print('\n\nmenu_category_list')
+
+# parallel lists
+list_of_json = []
+merchantId_list = [] 
+
 for r in response_json['restaurant']['menu_category_list']:
-    print(r['name'])
+    #print(r)
+    
     #print(r['menu_item_list'],'\n')
     for k in r['menu_item_list']:
-        print('   ',k['name'])
-    print('\n')
+        cur = { "_links": {
+                        'category': [
+                                {
+                    	    		"href": "/merchant/9/category/" + k['menu_category_id']
+                    	    	}
+                                ],
+                        'menu': [
+                                {
+                    	    		"href": "/merchant/9/menu/13" # need to change
+                    	    	}
+                                ],
+                        'modifierGroup': [
+                                {
+                    	    		"href": "/merchant/9/modifier-group/1" # need to cahnge
+                    	    	}
+                                ]
+                },
+    
+                "name": k['name'],
+                "price": k['price']['amount'],
+                "description": k['description']
+                }
+        list_of_json.append(cur)
+        merchantId_list.append(k['restaurant_id'])
     
 
-'''print('\n\nmenu_item_features')
-for r in response_json['restaurant']['menu_item_features']:
-    print(r)'''
-
-
-'''rr = requests.post(
-    'https://stevesie.com/cloud/api/v1/endpoints/dcd6049c-6354-49b9-abed-041939db3094/executions',
-    headers={
-        'Token': 'b90ea26c-cd3e-4a26-be92-5f235d4b1dbc',
-    },
-    json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json" ,"inputs": { "restaurant_id": "1453199", "auth_token": response_json["session_handle"]["access_token"] } })
-
-
-response_json = r.json()
-print(response_json['object']['response'])'''
-'''for r in response_json['object']['response']['response_json']:
-    print(r)'''
-    
+run = False
+if run:
+    for i in range(len(list_of_json)):
+        r = requests.post(
+            'https://api.orderup.ai/merchant/:'+ merchantId_list[i] +'/item',
+            json = list_of_json[i]
+            )
+else:
+    for j in list_of_json:
+        print(j,'\n\n')
     
 
