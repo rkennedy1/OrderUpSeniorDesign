@@ -39,13 +39,19 @@ class RestaurantInfo:
     tax_rate: float
     contactTracing: False
 r1 = RestaurantInfo(response_json['restaurant']['name'], response_json['restaurant_availability']['sales_tax'], False)
-print("Info: ", r1)
+# print("Info: ", r1)
 
 menus = []
-for i in response_json['restaurant']['menu_category_list']:
-    print(i)
-    menus.append(i['name'])
+for i in response_json['restaurant']['cuisines']:
+    # print(i)
+    menus.append(i)
 print(menus)
+
+catergories = []
+for i in response_json['restaurant']['menu_category_list']:
+    # print(i)
+    catergories.append(i['name'])
+print(catergories)
 
 
 #url = "https://api.staging.orderup.ai/merchant"
