@@ -25,9 +25,12 @@ r = requests.post(
     # 290029 - Thai Thai
 
 response_json = r.json()
-response_json = response_json['object']['response']['response_json']
-# print("Restaurant:\n",response_json,'\n')
 with open('Full-output.txt', 'w') as outfile:
+    json.dump(response_json, outfile)
+#print("Restaurant:\n",response_json,'\n')
+response_json = response_json['object']['response']['response_json']
+#print("Restaurant:\n",response_json,'\n')
+with open('output.txt', 'w') as outfile:
     json.dump(response_json, outfile)
 
 @dataclass
@@ -36,13 +39,25 @@ class RestaurantInfo:
     tax_rate: float
     contactTracing: False
 r1 = RestaurantInfo(response_json['restaurant']['name'], response_json['restaurant_availability']['sales_tax'], False)
-print("Info: ", r1)
+# print("Info: ", r1)
 
-url = "https://api.staging.orderup.ai/merchant"
+menus = []
+for i in response_json['restaurant']['cuisines']:
+    # print(i)
+    menus.append(i)
+print(menus)
 
-payload = "{{\n    \"name\": \"{0}\",\n    \"taxrate\": \"{1}\",\n    \"menuOnly\": \"1\",\n    \"contactTracing\": \"{2}\"\n}}".format(r1.name, r1.tax_rate, r1.contactTracing)
-headers= {}
-print(payload)
-response = requests.request("POST", url, headers=headers, data = payload)
+catergories = []
+for i in response_json['restaurant']['menu_category_list']:
+    # print(i)
+    catergories.append(i['name'])
+print(catergories)
 
-print(response.text.encode('utf8'))
+
+#url = "https://api.staging.orderup.ai/merchant"
+
+#payload = "{{\n    \"name\": \"{0}\",\n    \"taxrate\": \"{1}\",\n    \"menuOnly\": \"1\",\n    \"contactTracing\": \"{2}\"\n}}".format(r1.name, r1.tax_rate, r1.contactTracing)
+#headers = {"Authorization": "Bearer xcewkbPk4cUBssKPp29PkzL8JteYu46+1VtWPPosGew"}
+#print(payload)
+#response = requests.request("POST", url, headers=headers, data = payload)
+#print(response.text.encode('utf8'))
