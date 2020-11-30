@@ -23,7 +23,7 @@ r = requests.post(
     headers={
         'Token': 'b90ea26c-cd3e-4a26-be92-5f235d4b1dbc',
     },
-    json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json", "inputs": { "restaurant_id": "1453199", "auth_token": response_json["session_handle"]["access_token"] } })
+    json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json", "inputs": { "restaurant_id": "290029", "auth_token": response_json["session_handle"]["access_token"] } })
     # 1684504 - Wendys
     # 2124365 - Chipotle
 
@@ -40,8 +40,10 @@ merchantId_list = []
 for r in response_json['restaurant']['menu_category_list']:
     #print(r)
     
-    #print(r['menu_item_list'],'\n')
+    #print(r['menu_item_list']['choice_category_list'],'\n\n\n\n\n')
     for k in r['menu_item_list']:
+        #print(k['choice_category_list'],'\n\n\n\n\n')
+        modifiers = k['choice_category_list']
         cur = { "_links": {
                         'category': [
                                 {
@@ -54,9 +56,7 @@ for r in response_json['restaurant']['menu_category_list']:
                     	    	}
                                 ],
                         'modifierGroup': [
-                                {
-                    	    		"href": "/merchant/9/modifier-group/1" # need to cahnge
-                    	    	}
+                                {"href": "/merchant/9/modifier-group/1" + m['name']} for m in modifiers
                                 ]
                 },
     
@@ -75,7 +75,9 @@ if run:
             'https://api.orderup.ai/merchant/:'+ merchantId_list[i] +'/item',
             json = list_of_json[i]
             )
-else:
+
+print_en = True
+if print_en:
     for j in list_of_json:
         print(j,'\n\n')
     
