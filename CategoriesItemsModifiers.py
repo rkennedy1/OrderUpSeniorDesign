@@ -9,7 +9,9 @@ r = requests.post(
     json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json" })
 
 response_json = r.json()
+#print(response_json)
 response_json = response_json['object']['response']['response_json']
+
 #print("Auth:\n",response_json,'\n')
 
 r = requests.post(
@@ -22,6 +24,7 @@ r = requests.post(
     # 2124365 - Chipotle
 
 response_json = r.json()
+#print(response_json)
 response_json = response_json['object']['response']['response_json']
 #print("Restau'rant:\n",respon'se_json,'\n')
 
