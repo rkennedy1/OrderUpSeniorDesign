@@ -41,27 +41,36 @@ with open('output1.txt', 'w') as outfile:
 
 exist_list = set()
 
-print('\n\nitems:')
+print('\n\nitems:\n')
 for menu in response_json['restaurant']['menu_category_list']:
     print(menu['name'])
     #print(r['menu_item_list'],'\n')
     for item in menu['menu_item_list']:
-        print(item['name']+':')
-        print(item)
-        print('\n\n')
+        name = item['name']
+        print(name +':')
+        #print(item)
         
-        cur_json = '{"_links":{"category":['
+        #cahgne for the real one according to Kirby/Ryan
+        merchant = str(item['restaurant_id'])
+        category = str(item['menu_category_id'])
         
+        cur_json = '{"_links":{"category":[' # what is the category?!
+        cur_json += '], "menu":[{'
+        cur_json += '"href": "/merchant/' + merchant + '/category/' + category + '"}]' 
         
+        #change according to Bill
+        modi_group = str(item['choice_category_list'])
         
-        cur_json +='}'
-        '''
-        for k in item['choice_category_list']:
-            if((k['id'] in exist_list) == False):
-                exist_list.add(k['id'])
-                print('   ','   ',k['name'])
-                for l in k['choice_option_list']:
-                    print('   ','   ','   ',l['description'],l['price']['amount'])
-        '''
+        cur_json += ', "modifierGroup":[{'
+        if modi_group: cur_json += '"href": "/merchant/'+ merchant +'/modifier-group/'+modi_group+'"'
+        cur_json += '}]},' # end links
+    
+        cur_json += '"name": "'+name+'",'
+        cur_json += '"price": '+str(item['price']['amount'])+','
+        cur_json += '"description": "'+item['description']+'"'
 
-    print('\n')
+        cur_json +='}'
+        
+        print(cur_json)
+        print('\n\n')
+
