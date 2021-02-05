@@ -1,4 +1,3 @@
-
 import requests
 
 r = requests.post(
@@ -16,11 +15,11 @@ r = requests.post(
             "flatFee": True,
             "feeAmount": 53,
             "taxRate": 13.00,
+            "testMode": False,
             "countryCode": "CA",
             "currency": "usd"
         }
     }
 )
 
-response_json = r.json()
-print(response_json)
+print(r.headers['Location'])
