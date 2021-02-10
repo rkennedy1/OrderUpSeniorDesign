@@ -47,9 +47,14 @@ for menu in response_json['restaurant']['menu_category_list']:
     #print(r['menu_item_list'],'\n')
     for item in menu['menu_item_list']:
         name = item['name']
+        
+        if name[0].isdigit() or name[1].isdigit(): # removing numbers before
+            name = ' '.join(name.split()[1:])
+        
         print(name +':')
         #print(item)
         
+        '''
         #cahgne for the real one according to Kirby/Ryan
         merchant = str(item['restaurant_id'])
         category = str(item['menu_category_id'])
@@ -70,7 +75,27 @@ for menu in response_json['restaurant']['menu_category_list']:
         cur_json += '"description": "'+item['description']+'"'
 
         cur_json +='}'
+        '''
+        kirby = [] # category
+        ryan = [] # menu
+        bill = [] # modifiers
         
-        print(cur_json)
+        item_json = {
+                
+                "_links":{
+                        "category" : kirby,
+                        "menu": ryan,
+                        "modifierGroup":bill
+                        },
+                "name":name,
+                "price":item['price']['amount'],
+                "description": item['description']
+                
+                }
+        
+        
+        
+        #print(cur_json)
+        print(item_json)
         print('\n\n')
 
