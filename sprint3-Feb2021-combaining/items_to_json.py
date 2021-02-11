@@ -53,7 +53,7 @@ for menu in response_json['restaurant']['menu_category_list']:
 
         merchant = 0
         kirby = [1] # category
-        bill = [5] # modifiers
+        bill = [5] # itemID_to_modifiersID
         ryan = [6] # menus
         category = [{"href": "/merchant/" + str(merchant) + '/category/' + str(c)} for c in kirby] 
         menu = [{"href": "/merchant/" + str(merchant) +'/menu/'+str(m)} for m in ryan]
