@@ -170,17 +170,18 @@ for i in modifier_list:
         j.append(modifier_item_id)
     i.append(modifier_group_id)
 
-output_bill = []
+itemID_to_modifiersID = {}
 print('pass')
 for i in item_with_modifiers:
     temp_list_4 = []
-    temp_list_4.append(i[0])
+    temp_list_4.append()
+    itemID_to_modifiersID[i[0]] = []
     for j in i[2]:
         for k in modifier_list:
             if (j == k[0]):
-                temp_list_4.append(k[-1])
+                itemID_to_modifiersID[i[0]].append(k[-1])
                 break
-    output_bill.append(temp_list_4)
 #-------------------------------------------------------------------
-
-print(r.headers)
+                
+print(itemID_to_modifiersID)
+#print(r.headers)

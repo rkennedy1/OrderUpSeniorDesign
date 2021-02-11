@@ -42,11 +42,12 @@ for menu in response_json['restaurant']['menu_category_list']:
     #print(r['menu_item_list'],'\n')
     for item in menu['menu_item_list']:
         name = item['name']
+        id = item['id']
         
         if name[0].isdigit() or name[1].isdigit(): # removing numbers before
             name = ' '.join(name.split()[1:])
         
-        print(name +':')
+        print(name + '(' +id + '):')
         #print(item)
         
 
