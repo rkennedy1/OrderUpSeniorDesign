@@ -12,6 +12,9 @@ r = requests.post(
     headers={
         'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
     },
+    #features={
+     #     "orderEta": False
+     #},
     json={
         "name": restaurant['name']+"_Testing",
         "menuOnly": 1,
@@ -172,16 +175,53 @@ for i in modifier_list:
 
 itemID_to_modifiersID = {}
 print('pass')
+
+
 for i in item_with_modifiers:
     temp_list_4 = []
-    temp_list_4.append()
+    #temp_list_4.append()
     itemID_to_modifiersID[i[0]] = []
     for j in i[2]:
         for k in modifier_list:
             if (j == k[0]):
                 itemID_to_modifiersID[i[0]].append(k[-1])
                 break
-#-------------------------------------------------------------------
-                
 print(itemID_to_modifiersID)
-#print(r.headers)
+
+
+#-------------------------------------------------------------------
+# creating items
+for menu in response_json['restaurant']['menu_category_list']:
+    print(menu['name'])
+    #print(r['menu_item_list'],'\n')
+    for item in menu['menu_item_list']:
+        name = item['name']
+        id = item['id']
+        
+        if name[0].isdigit() or name[1].isdigit(): # removing numbers before
+            name = ' '.join(name.split()[1:])
+        
+        #print(name + '(' +id + '):')
+        #print(item)
+        
+        kirby = restaurant_categories 
+        bill = itemID_to_modifiersID[str(id)] if str(id) in itemID_to_modifiersID else []
+        ryan = [6] # menus
+        category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(c)} for c in kirby] 
+        menu = [{"href": "/merchant/" + str(merchantId) +'/menu/'+str(m)} for m in ryan]
+        modifierGroup = [{"href": "/merchant/" + str(merchantId) +'/modifier-group/'+str(m)} for m in bill]
+        
+        item_json = {
+                
+                "_links":{
+                        "category" : category,
+                        "menu": menu,
+                        "modifierGroup":modifierGroup
+                        },
+                "name":name,
+                "price":item['price']['amount'],
+                "description": item['description']
+                
+                }
+        #print(item_json)
+        #print('\n\n')
