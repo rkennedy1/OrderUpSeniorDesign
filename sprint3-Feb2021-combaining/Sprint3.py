@@ -21,13 +21,15 @@ r = requests.post(
         "contactTracing": restaurant_availability['contact_free_required'],
         "headerImg": restaurant['logo'],
         "paySettings": {
-            "stripeAccount": "acct_1HSTyMHluWM5pjM5",
+            "stripeAccount": "Null",
             "flatFee": True,
             "feeAmount": restaurant_availability['delivery_fee']['amount'],
             "taxRate": restaurant_availability['sales_tax'],
             "testMode": False,
             "countryCode": "CA",
             "currency": "usd"
+        }, "features": {
+            "orderEta": False
         }
     }
 )
@@ -79,8 +81,9 @@ for i in response_json['restaurant']['menu_category_list']:
 #--------------------------------------------------------------------
 
 
-print(r.headers['Location'])
+#print(r.headers['Location'])
 location = r.headers['Location']
+#location = '/merchant/29'
 
 r = requests.post(
     'https://api.staging.orderup.ai{}/menu'.format(location),
@@ -122,7 +125,7 @@ for i in restaurant_categories:
     print(r.headers["Location"])
     # categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
     categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
-
+print()
 #UPDATE CATEGORY
 r = requests.post(
         "https://api.orderup.ai/merchant/" + merchantId + "/category/" + categoryId,
@@ -171,8 +174,11 @@ for i in modifier_list:
         modifier_item_id = r.headers['Location']
         modifier_item_id = modifier_item_id[modifier_item_id.rfind('/') + 1:]
         j.append(modifier_item_id)
+        print("Modifier item id: " + modifier_item_id)
     i.append(modifier_group_id)
+    print("Modifier group id: " + modifier_group_id + "\n")
 
+'''
 itemID_to_modifiersID = {}
 print('pass')
 
@@ -186,6 +192,7 @@ for i in item_with_modifiers:
             if (j == k[0]):
                 itemID_to_modifiersID[i[0]].append(k[-1])
                 break
+<<<<<<< HEAD
 print(itemID_to_modifiersID)
 
 
@@ -225,3 +232,11 @@ for menu in response_json['restaurant']['menu_category_list']:
                 }
         #print(item_json)
         #print('\n\n')
+=======
+
+#-------------------------------------------------------------------
+
+print(itemID_to_modifiersID)
+#print(r.headers)
+'''
+>>>>>>> a45fc1c388c8b41a459aa9b4c6540ca37ca57a51

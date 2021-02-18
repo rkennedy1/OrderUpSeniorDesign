@@ -18,13 +18,16 @@ r = requests.post(
         "contactTracing": restaurant_availability['contact_free_required'],
         "headerImg": restaurant['logo'],
         "paySettings": {
-            "stripeAccount": "acct_1HSTyMHluWM5pjM5",
+            "stripeAccount": "Null",
             "flatFee": True,
             "feeAmount": restaurant_availability['delivery_fee']['amount'],
             "taxRate": restaurant_availability['sales_tax'],
             "testMode": False,
             "countryCode": "CA",
             "currency": "usd"
+        },
+        "features": {
+            "orderEta": False
         }
     }
 )
