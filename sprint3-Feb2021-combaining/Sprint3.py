@@ -101,9 +101,10 @@ menuId = r.headers['Location'].split("/")[-1]
 print(menuId)
 location = r.headers['Location']
 merchantId = location.split("/")[2]
-# categoryIds = []
-categoryId = 0
+categoryIds = []
+#categoryId = 0
 
+categoryName_to_ID = {}
 # CREATE CATEGORY
 for i in restaurant_categories:
     r = requests.post(
@@ -125,8 +126,10 @@ for i in restaurant_categories:
         }
     )
     print(r.headers["Location"])
-    # categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
-    categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
+    categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
+    #categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
+    
+print(categoryIds)
 print()
 #UPDATE CATEGORY
 r = requests.post(
@@ -195,11 +198,12 @@ for i in item_with_modifiers:
                 itemID_to_modifiersID[i[0]].append(k[-1])
                 break
 
-print(itemID_to_modifiersID)
+#print(itemID_to_modifiersID)
 
 
 #-------------------------------------------------------------------
 # creating items
+catregoty_idx = 0
 for menu in response_json['restaurant']['menu_category_list']:
     print(menu['name'])
     #print(r['menu_item_list'],'\n')
@@ -213,10 +217,10 @@ for menu in response_json['restaurant']['menu_category_list']:
         #print(name + '(' +id + '):')
         #print(item)
         
-        kirby = restaurant_categories 
+
         bill = itemID_to_modifiersID[str(id)] if str(id) in itemID_to_modifiersID else []
         ryan = [menuId] # menus
-        category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(c)} for c in kirby] 
+        category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(categoryIds[catregoty_idx])}] 
         menu = [{"href": "/merchant/" + str(merchantId) +'/menu/'+str(m)} for m in ryan]
         modifierGroup = [{"href": "/merchant/" + str(merchantId) +'/modifier-group/'+str(m)} for m in bill]
         
@@ -234,10 +238,19 @@ for menu in response_json['restaurant']['menu_category_list']:
                 }
         #print(item_json)
         #print('\n\n')
+        
+        r = requests.post(
+            "https://api.staging.orderup.ai/merchant/" + merchantId + "/item",
+            headers={
+                'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
+            },
+            json = item_json
+        )
+        print(r.headers["Location"])
 
-
+    catregoty_idx += 1
 #-------------------------------------------------------------------
 
-print(itemID_to_modifiersID)
+#print(itemID_to_modifiersID)
 #print(r.headers)
 
