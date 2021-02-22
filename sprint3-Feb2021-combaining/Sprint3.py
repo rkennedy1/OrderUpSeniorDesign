@@ -97,6 +97,8 @@ r = requests.post(
     }
 )
 print(r.headers['Location'])
+menuId = r.headers['Location'].split("/")[-1]
+print(menuId)
 location = r.headers['Location']
 merchantId = location.split("/")[2]
 # categoryIds = []
@@ -178,7 +180,7 @@ for i in modifier_list:
     i.append(modifier_group_id)
     print("Modifier group id: " + modifier_group_id + "\n")
 
-'''
+
 itemID_to_modifiersID = {}
 print('pass')
 
@@ -192,7 +194,7 @@ for i in item_with_modifiers:
             if (j == k[0]):
                 itemID_to_modifiersID[i[0]].append(k[-1])
                 break
-<<<<<<< HEAD
+
 print(itemID_to_modifiersID)
 
 
@@ -213,7 +215,7 @@ for menu in response_json['restaurant']['menu_category_list']:
         
         kirby = restaurant_categories 
         bill = itemID_to_modifiersID[str(id)] if str(id) in itemID_to_modifiersID else []
-        ryan = [6] # menus
+        ryan = [menuId] # menus
         category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(c)} for c in kirby] 
         menu = [{"href": "/merchant/" + str(merchantId) +'/menu/'+str(m)} for m in ryan]
         modifierGroup = [{"href": "/merchant/" + str(merchantId) +'/modifier-group/'+str(m)} for m in bill]
@@ -232,11 +234,10 @@ for menu in response_json['restaurant']['menu_category_list']:
                 }
         #print(item_json)
         #print('\n\n')
-=======
+
 
 #-------------------------------------------------------------------
 
 print(itemID_to_modifiersID)
 #print(r.headers)
-'''
->>>>>>> a45fc1c388c8b41a459aa9b4c6540ca37ca57a51
+
