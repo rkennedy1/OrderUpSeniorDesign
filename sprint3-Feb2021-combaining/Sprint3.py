@@ -128,11 +128,11 @@ for i in restaurant_categories:
     print(r.headers["Location"])
     categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
     #categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
-    
+
 print(categoryIds)
 print()
 #UPDATE CATEGORY
-r = requests.post(
+'''r = requests.post(
         "https://api.orderup.ai/merchant/" + merchantId + "/category/" + categoryId,
         headers={
             'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
@@ -150,7 +150,7 @@ r = requests.post(
             "description": "updated category"
         }
     )
-
+'''
 #-------------------------------------------------------------------
 url = "https://api.staging.orderup.ai/merchant/{}/modifier-group".format(merchantId)
 
@@ -210,22 +210,22 @@ for menu in response_json['restaurant']['menu_category_list']:
     for item in menu['menu_item_list']:
         name = item['name']
         id = item['id']
-        
+
         if name[0].isdigit() or name[1].isdigit(): # removing numbers before
             name = ' '.join(name.split()[1:])
-        
+
         #print(name + '(' +id + '):')
         #print(item)
-        
+
 
         bill = itemID_to_modifiersID[str(id)] if str(id) in itemID_to_modifiersID else []
         ryan = [menuId] # menus
-        category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(categoryIds[catregoty_idx])}] 
+        category = [{"href": "/merchant/" + str(merchantId) + '/category/' + str(categoryIds[catregoty_idx])}]
         menu = [{"href": "/merchant/" + str(merchantId) +'/menu/'+str(m)} for m in ryan]
         modifierGroup = [{"href": "/merchant/" + str(merchantId) +'/modifier-group/'+str(m)} for m in bill]
-        
+
         item_json = {
-                
+
                 "_links":{
                         "category" : category,
                         "menu": menu,
@@ -234,11 +234,11 @@ for menu in response_json['restaurant']['menu_category_list']:
                 "name":name,
                 "price":item['price']['amount'],
                 "description": item['description']
-                
+
                 }
         #print(item_json)
         #print('\n\n')
-        
+
         r = requests.post(
             "https://api.staging.orderup.ai/merchant/" + merchantId + "/item",
             headers={
@@ -246,11 +246,10 @@ for menu in response_json['restaurant']['menu_category_list']:
             },
             json = item_json
         )
-        print(r.headers["Location"])
+        print(r.headers["Location"],": {}".format(name))
 
     catregoty_idx += 1
 #-------------------------------------------------------------------
 
 #print(itemID_to_modifiersID)
 #print(r.headers)
-
