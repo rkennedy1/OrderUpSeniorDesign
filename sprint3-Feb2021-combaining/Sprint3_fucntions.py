@@ -1,0 +1,265 @@
+import requests
+import json
+
+
+class Requests:
+    def __init__(self,response_json):
+        
+        self.response_json = response_json
+        self.restaurant = response_json['restaurant']
+        self.restaurant_availability = response_json['restaurant_availability']
+        self.restaurant_categories = response_json['restaurant']['menu_category_list']
+        self.modifier_list = []
+        self.itemID_to_modifiersID = {}
+        self.categoryIds = []
+        
+        
+    def create_merchant(self):
+        
+        restaurant = self.restaurant
+        restaurant_availability =self.restaurant_availability
+        
+        self.merchant_req = requests.post(
+            'https://api.staging.orderup.ai/merchant',
+            headers={
+                'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
+            },
+    
+            json={
+                "name": restaurant['name']+"_Testing",
+                "menuOnly": 1,
+                "contactTracing": restaurant_availability['contact_free_required'],
+                "headerImg": restaurant['logo'],
+                "paySettings": {
+                    "stripeAccount": "Null",
+                    "flatFee": True,
+                    "feeAmount": restaurant_availability['delivery_fee']['amount'],
+                    "taxRate": restaurant_availability['sales_tax'],
+                    "testMode": False,
+                    "countryCode": "CA",
+                    "currency": "usd"
+                }, "features": {
+                    "orderEta": False
+                }
+            }
+        )
+
+
+
+
+    def set_lists(self):
+
+        exist_list = []
+        item_with_modifiers = []
+        
+        for i in self.response_json['restaurant']['menu_category_list']:
+            for j in i['menu_item_list']:
+                temp_list = []
+                temp_list3 = []
+                temp_list.append(j['id'])
+                temp_list.append(j['name'])
+                for k in j['choice_category_list']:
+                    temp_list1 = []
+                    temp_list3.append(k['id'])
+                    if((k['id'] in exist_list) == False):
+                        exist_list.append(k['id'])
+                        temp_list1.append(k['id'])
+                        temp_list1.append(k['name'])
+                        temp_list1.append(k['min_choice_options'])
+                        # temp_list1.append(k['max_choice_options'])
+                        if('max_choice_options' in k):
+                            temp_list1.append(k['max_choice_options'])
+                        else:
+                            temp_list1.append(-1)
+                        if(temp_list1[2] == 0):
+                            temp_list1.append(False)
+                        else:
+                            temp_list1.append(True)
+                        item_counter = 0
+                        for l in k['choice_option_list']:
+                            temp_list2 = []
+                            # temp_list2.append(l['id'])
+                            temp_list2.append(l['description'])
+                            temp_list2.append(l['price']['amount'])
+                            temp_list1.append(temp_list2)
+                            item_counter += 1
+                        if temp_list1[3] == -1:
+                            temp_list1[3] = item_counter
+                        self.modifier_list.append(temp_list1)
+                if(len(temp_list3) > 0):
+                    temp_list.append(temp_list3)
+                    item_with_modifiers.append(temp_list)
+                    
+        # set a map between item_id (grubhub id) to modifier_id (orderup)            
+        for i in item_with_modifiers:
+            self.itemID_to_modifiersID[i[0]] = []
+            for j in i[2]:
+                for k in self.modifier_list:
+                    if (j == k[0]):
+                        self.itemID_to_modifiersID[i[0]].append(k[-1])
+                        break
+        
+        #print(itemID_to_modifiersID)
+
+#--------------------------------------------------------------------
+
+    def create_menu(self):
+
+        location = self.merchant_req.headers['Location']
+        print(location,"ccccccccccccccccccc")
+        self.menu_req = requests.post(
+            'https://api.staging.orderup.ai{}/menu'.format(location),
+            headers={
+                'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
+            },
+            json={
+                "name": self.restaurant['cuisines'][0],
+                "startTime": self.restaurant_availability['available_hours'][0]['time_ranges'][0].split('-')[0],
+                "endTime": self.restaurant_availability['available_hours'][0]['time_ranges'][-1].split('-')[-1]
+            }
+        )
+        print(self.menu_req.headers['Location'])
+        self.menuId = self.menu_req.headers['Location'].split("/")[-1]
+        self.merchantId = self.menu_req.headers['Location'].split("/")[2]
+        
+    
+    
+    
+    def create_categories(self):
+
+        location = self.menu_req.headers['Location']
+ 
+        for i in self.restaurant_categories:
+            r = requests.post(
+                "https://api.staging.orderup.ai/merchant/" + self.merchantId + "/category",
+                headers={
+                    'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
+                },
+                json={
+                    "_links": {
+                        "menu": [
+                        {
+                            "href": location
+                        },
+                        ]
+                    },
+                    "name": i["name"],
+                    "position": 100,
+                    "description": "Only the best will do"
+                }
+            )
+            print(r.headers["Location"])
+            self.categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
+            
+        #print(self.categoryIds)
+        print()
+
+#-------------------------------------------------------------------
+
+    def create_modifers(self):
+
+        url = "https://api.staging.orderup.ai/merchant/{}/modifier-group".format(self.merchantId)
+        
+        for i in self.modifier_list:
+            r = requests.post(
+                url,
+                json={
+                    "name": i[1],
+                    "description": "None",
+                    "required": i[4],
+                    "minRange": i[2],
+                    "maxRange": i[3]
+                }
+            )
+            modifier_group_id = r.headers['Location']
+            modifier_group_id = modifier_group_id[modifier_group_id.rfind('/') + 1:]
+            modifier_url = "https://api.staging.orderup.ai/merchant/{}/modifier-group/{}/modifier".format(self.merchantId, modifier_group_id)
+            for j in i[5:]:
+                r = requests.post(
+                modifier_url,
+                json={
+                    "name": i[0],
+                    "price": i[1]
+                    }
+                )
+                modifier_item_id = r.headers['Location']
+                modifier_item_id = modifier_item_id[modifier_item_id.rfind('/') + 1:]
+                j.append(modifier_item_id)
+                print("Modifier item id: " + modifier_item_id)
+            i.append(modifier_group_id)
+            print("Modifier group id: " + modifier_group_id + "\n")
+        
+
+
+#-------------------------------------------------------------------
+
+    def create_items(self):
+        catregoty_idx = 0
+        for menu in self.restaurant_categories:
+            print(menu['name'])
+            #print(r['menu_item_list'],'\n')
+            for item in menu['menu_item_list']:
+                name = item['name']
+                id = item['id']
+        
+                if name[0].isdigit() or name[1].isdigit(): # removing numbers before
+                    name = ' '.join(name.split()[1:])
+        
+                #print(name + '(' +id + '):')
+                #print(item)
+        
+        
+                bill = self.itemID_to_modifiersID[str(id)] if str(id) in self.itemID_to_modifiersID else []
+
+                category = [{"href": "/merchant/" + self.merchantId + '/category/' + str(self.categoryIds[catregoty_idx])}]
+                menu = [{"href": "/merchant/" + self.merchantId +'/menu/'+self.menuId}]
+                modifierGroup = [{"href": "/merchant/" + self.merchantId +'/modifier-group/'+str(m)} for m in bill]
+        
+                item_json = {
+        
+                        "_links":{
+                                "category" : category,
+                                "menu": menu,
+                                "modifierGroup":modifierGroup
+                                },
+                        "name":name,
+                        "price":item['price']['amount'],
+                        "description": item['description']
+        
+                        }
+                #print(item_json)
+                #print('\n\n')
+        
+                r = requests.post(
+                    "https://api.staging.orderup.ai/merchant/" + self.merchantId + "/item",
+                    headers={
+                        'Authorization': 'Bearer hMLsrTVzDwDgea3D0Ghl0Rh51ytlDmUYNK8Fj1MD3GQ',
+                    },
+                    json = item_json
+                )
+                print(r.headers["Location"],": {}".format(name))
+        
+            catregoty_idx += 1
+            print()
+
+
+        #print(itemID_to_modifiersID)
+        #print(r.headers)
+    
+#-------------------------------------------------------------------    
+if __name__ == "__main__":
+    
+    f = open("Output1.txt", "r")
+    response_json = json.load(f)
+    
+    req = Requests(response_json)
+    req.create_merchant()
+    req.set_lists()
+    req.create_menu()
+    req.create_categories()
+    req.create_modifers()
+    req.create_items()
+    
+    
+    
+    
