@@ -81,7 +81,7 @@ for i in response_json['restaurant']['menu_category_list']:
 #--------------------------------------------------------------------
 
 
-#print(r.headers['Location'])
+print(r.headers['Location'])
 location = r.headers['Location']
 #location = '/merchant/29'
 
@@ -98,7 +98,7 @@ r = requests.post(
 )
 print(r.headers['Location'])
 menuId = r.headers['Location'].split("/")[-1]
-print(menuId)
+#print(menuId)
 location = r.headers['Location']
 merchantId = location.split("/")[2]
 categoryIds = []
@@ -129,7 +129,7 @@ for i in restaurant_categories:
     categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
     #categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
 
-print(categoryIds)
+#print(categoryIds)
 print()
 #UPDATE CATEGORY
 '''r = requests.post(
@@ -153,7 +153,7 @@ print()
 '''
 #-------------------------------------------------------------------
 url = "https://api.staging.orderup.ai/merchant/{}/modifier-group".format(merchantId)
-
+#print(modifier_list)
 for i in modifier_list:
     r = requests.post(
         url,
@@ -172,8 +172,8 @@ for i in modifier_list:
         r = requests.post(
         modifier_url,
         json={
-            "name": i[0],
-            "price": i[1]
+            "name": j[0],
+            "price": j[1]
             }
         )
         modifier_item_id = r.headers['Location']
