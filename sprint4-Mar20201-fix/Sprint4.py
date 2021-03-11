@@ -1,6 +1,33 @@
 import requests
 import json
+import sys
 
+def create_data(restaurant_id):
+    try:
+        r = requests.post(
+            'https://stevesie.com/cloud/api/v1/endpoints/92e9a78f-8e40-46c1-bc5c-f3b37ecb33de/executions',
+            headers={
+                'Token': 'b90ea26c-cd3e-4a26-be92-5f235d4b1dbc',
+            },
+            json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json" })
+
+        response_json = r.json()
+        response_json = response_json['object']['response']['response_json']
+
+        r = requests.post(
+            'https://stevesie.com/cloud/api/v1/endpoints/e35c15d5-0ff5-4d8d-bc16-7da5f22ff866/executions',
+            headers={
+                'Token': 'b90ea26c-cd3e-4a26-be92-5f235d4b1dbc',
+            },
+            json={ "proxy": { "type": "shared", "location": "nyc" }, "format": "json", "inputs": { "restaurant_id": 2332446, "auth_token": response_json["session_handle"]["access_token"] } })
+            # 1684504 - Yardbird
+            # 2124365 - Chipotle
+            # 290029 - Thai Thai
+
+        response_json = r.json()
+        return response_json['object']['response']['response_json']
+    except:
+        print("Stevesie API has returned an error\nPlease try again in a few seconds\n")
 
 
 class Requests:
@@ -10,14 +37,14 @@ class Requests:
         self.restaurant = response_json['restaurant']
         self.restaurant_availability = response_json['restaurant_availability']
         self.restaurant_categories = response_json['restaurant']['menu_category_list']
-        
+
         self.modifier_list = []
         self.exist_list = []
         self.item_with_modifiers = []
         self.categoryIds = []
-        
+
         self.itemID_to_modifiersID = {}
-        
+
     def create_marchent(self):
 
         self.r = requests.post(
@@ -48,9 +75,9 @@ class Requests:
         )
 
 
-        
+
     def set_modifiers_lists(self):
-        
+
         for i in self.response_json['restaurant']['menu_category_list']:
             for j in i['menu_item_list']:
                 temp_list = []
@@ -112,8 +139,8 @@ class Requests:
         print(self.menuId)
         self.location = r.headers['Location']
         self.merchantId = self.location.split("/")[2]
-        
-        
+
+
     def create_category(self):
 
         # CREATE CATEGORY
@@ -139,15 +166,15 @@ class Requests:
             print(r.headers["Location"])
             self.categoryIds.append(r.headers["Location"].split("/")[4]) # this puts all category ids into a list
             #categoryId = r.headers["Location"].split("/")[4] # this gets the last category id, will be used to test updating a category
-        
+
         print(self.categoryIds)
 
 
 
-        
+
     def create_modifiers(self):
         url = "https://api.staging.orderup.ai/merchant/{}/modifier-group".format(self.merchantId)
-        
+
         for i in self.modifier_list:
             r = requests.post(
                 url,
@@ -180,8 +207,8 @@ class Requests:
 
         self.itemID_to_modifiersID = {}
         print('pass')
-        
-        # setting map items id to modifier group        
+
+        # setting map items id to modifier group
         for i in self.item_with_modifiers:
             self.itemID_to_modifiersID[i[0]] = []
             for j in i[2]:
@@ -204,14 +231,14 @@ class Requests:
                     name = ' '.join(name.split()[1:])
                 #print(name + '(' +id + '):')
                 #print(item)
-        
+
                 bill = self.itemID_to_modifiersID[str(id)] if str(id) in self.itemID_to_modifiersID else []
                 ryan = [self.menuId] # menus
                 category = [{"href": "/merchant/" + str(self.merchantId) + '/category/' + str(self.categoryIds[catregoty_idx])}]
                 menu = [{"href": "/merchant/" + str(self.merchantId) +'/menu/'+str(m)} for m in ryan]
                 modifierGroup = [{"href": "/merchant/" + str(self.merchantId) +'/modifier-group/'+str(m)} for m in bill]
                 item_json = {
-        
+
                         "_links":{
                                 "category" : category,
                                 "menu": menu,
@@ -231,18 +258,22 @@ class Requests:
                     json = item_json
                 )
                 print(r.headers["Location"], ": ", name)
-        
+
             catregoty_idx += 1
 #-------------------------------------------------------------------
+# 1684504 - Yardbird
+# 290029 - Thai Thai
 
 if __name__ == "__main__":
-    f = open("output1.txt", "r")
-    r = Requests(json.load(f))
+    if (len(sys.argv) > 1):
+        menu_id = sys.argv[1]
+    else:
+        menu_id = 290029
+    f = create_data(menu_id)
+    r = Requests(f)
     r.create_marchent()
     r.set_modifiers_lists()
     r.create_menu()
     r.create_category()
     r.create_modifiers()
     r.create_items()
-    
-    
