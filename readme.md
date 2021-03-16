@@ -5,9 +5,9 @@
 
 To run code by using default menu id
 ```sh
-python sprint4.py
+python OrderUp.py
 ```
 To run code by passing the a menu id  
 ```sh
-python sprint4.py 1684504
+python OrderUp.py 1684504
 ```
