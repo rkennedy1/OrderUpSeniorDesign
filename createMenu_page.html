@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+		<meta name="generator" content="Hugo 0.55.4" />
+	    <title> SMU Team </title>
+
+	    <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="author" content="map[]" />
+
+	    <link rel="icon" href="https://www.orderup.ai/wp-content/uploads/2020/12/orderup-logo-pink.svg?x32086" sizes="32x32" />
+	    
+	    <link rel="stylesheet" href="https://techprimers.github.io/public/style.min.a6cab246517742ad1189b209575fc61556550e663cdfe02a0aab0632b39e978b.css">
+	    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+	
+
+    </head>
+<body>
+<div id="profileContainer">
+    <div id="profile">
+        <nav>
+            <ul>
+                
+                <li><a href="https://www.orderup.ai/" target="_blank"><img src="https://www.orderup.ai/wp-content/uploads/2020/12/orderup-logo-pink.svg?x32086" width="300" highet="250"><br></a></li>
+                
+                
+            </ul>
+        </nav>
+
+
+        <nav>
+            <ul>
+                
+                <button type="button" onclick="myFunction()">SEND</button>
+                
+                
+            </ul>
+        </nav>
+
+        <script>
+            
+
+        function myFunction() {
+            const Http = new XMLHttpRequest();
+            const url='https://ynnjf46pnh.execute-api.us-east-2.amazonaws.com/test/create?menu_id=290029';
+            Http.open("GET", url);
+            Http.setRequestHeader("x-api-key","AJ6V8skn0V1i02qj6uHOx8aItWVxYVhk4XFXr2fj");
+            Http.send();
+
+            Http.onreadystatechange = (e) => {
+              document.getElementById("createMenu").innerHTML = Http.responseText;
+              console.log(Http.responseText);
+            }
+        }
+
+
+        
+
+        </script>
+
+        <p id="createMenu"></p>
+
+
+    </div>
+</div>
+
+
+</body>
+</html>
